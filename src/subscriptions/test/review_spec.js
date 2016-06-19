@@ -1,3 +1,6 @@
+///</// <reference path="../../index.d.ts" />
+// /Users/rameshpg/Learning/UnitTesting/demo/src/index.d.ts
+
 var assert = require('assert');
 var ReviewProcess = require('../processes/review');
 var MembershipApplication = require('../../membership_application');
@@ -22,8 +25,15 @@ describe('ReviewProcess', function() {
         var spy_name = sinon.spy(validApp, 'isNameValid');
         var spy_weight = sinon.spy(validApp, 'isWeightValid');
         var spy_expired = sinon.spy(validApp, 'isExpired');
-        before(function(done) {
 
+        var spy =  sinon.spy();
+        before(function(done) {
+            review.on('application-received', spy);
+            review.on('validated', spy);
+            review.on('mission-selected', spy);
+            review.on('role-available', spy);
+            review.on('role-compatible', spy);
+            review.on('invalid', spy);
             review.processApplication(validApp, function(err, result) {
                 decision = result;
                 done();
@@ -54,8 +64,12 @@ describe('ReviewProcess', function() {
             assert(spy_weight.called, decision.message);
         });
 
-         it('Validates expiration date', function() {
+        it('Validates expiration date', function() {
             assert(spy_expired.called, decision.message);
+        });
+
+        it('Validated', function() {         
+            assert.equal(spy.callCount,5);
         });
     })
 });
