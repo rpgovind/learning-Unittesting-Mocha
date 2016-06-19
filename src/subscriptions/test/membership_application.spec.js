@@ -5,44 +5,50 @@ var assert= require('assert');
 
 var MembershipApplication = require('../../membership_application');
 
-describe('Applying for a Mission', function(){
+describe('Membership application requirements', function(){
     var validApp;
     before (function(){
         validApp = new MembershipApplication({
             firstName : 'John',
             lastName :'Doe',
             age :30,
-            height:12,
-            weight :50,
+            height:161,
+            weight :150,
             email : 'test@yahoo.com'
         });
     })
-    describe('Using a valid email , first, last, height, age, weight', function(){
-        it('is valid', function(){
+    describe('Validations', function(){
+        it('Application is valid if all validations succeeds', function(){
             assert(validApp.isValid(),'Not Valid' );
         });
-        it('is valid email', function(){
+        it('date validation', function(){
+            assert(!validApp.expired(), 'date is not expired');
+        });
+        it('Email is not empty and contains @', function(){
             assert(validApp.isEmailValid(), 'Not Valid')
         });
 
-        it('is valid Name', function () {
-            assert(validApp.isNameValid,'Not Valid  Name');
+        it('email is omitted', function () {
+            var app = new MembershipApplication();
+            assert(!app.isEmailValid(),'Not Valid  Name');
         });
 
-        it('is valid weight', function(){
-            assert(validApp.isHeightValid, 'not a Valid height');
+        it('Name is not empty', function () {
+            assert(validApp.isNameValid(),'Not Valid  Name');
         });
 
-        it('is valid height', function(){
-            assert(validApp.isWeightValid, 'Not valid height');
+
+
+        it('Height is between 60 and 100 inches', function(){
+            assert(validApp.isHeightValid(), 'Not valid height');
         });
 
-        it('is valid age', function(){
+        it('Age is between 1 and 100', function(){
             assert(validApp.isAgeValid(), 'not valid age');
         });
 
-        it('is valid weight', function(){
-            assert(validApp.isWeightValid(), 'not a vlaid weight');
+        it('Weight is between 100 and 300 lbs', function(){
+            assert(validApp.isWeightValid(), 'not a valid weight');
         });
 
     });
