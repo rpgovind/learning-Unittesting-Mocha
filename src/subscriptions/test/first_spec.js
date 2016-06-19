@@ -1,4 +1,4 @@
-///</// <reference path="typings/index.d.ts" />
+
 
 var assert = require('assert');
 
