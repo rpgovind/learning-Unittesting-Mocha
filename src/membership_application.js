@@ -8,9 +8,8 @@ var MembershipApllication = function(args){
 
     this.validUntil = (args.validUntil) ?moment(args.validUntil) : moment().add(10,'days');
     
-    this.expired  = function(){
-        
-        return this.validUntil .isBefore( moment());
+    this.isExpired  = function(){       
+        return this.validUntil.isBefore(moment());
     }
     this.isAgeValid = function(){
         return this.age && this.age > 1 && this.age <100;
@@ -32,10 +31,11 @@ var MembershipApllication = function(args){
     }
     this.isValid = function(){
         return this.isAgeValid() 
-        && this.isHeightValid 
-        && this.isWeightValid 
-        && this.isNameValid
-        && this.isEmailValid;
+        && this.isHeightValid () 
+        && this.isWeightValid ()
+        && this.isNameValid ()
+        && this.isEmailValid ()
+        && !this.isExpired();
     };
 
     this.validationmessage = function(){

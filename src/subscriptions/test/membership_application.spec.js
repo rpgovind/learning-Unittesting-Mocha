@@ -22,7 +22,7 @@ describe('Membership application requirements', function(){
             assert(validApp.isValid(),'Not Valid' );
         });
         it('date validation', function(){
-            assert(!validApp.expired(), 'date is not expired');
+            assert(!validApp.isExpired(), 'date is not expired');
         });
         it('Email is not empty and contains @', function(){
             assert(validApp.isEmailValid(), 'Not Valid')
