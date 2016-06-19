@@ -1,76 +1,70 @@
-var EventEmitter = require('events').EventEmitter;
+///</// <reference path="../../index.d.ts" />
 
-var util = require('util');
+
+var async = require('async');
 
 var ReviewProcess = function(args) {
 
-this.step1 = {};
-    var callback;
+    var app = args.application || {};
+    // var callback;
 
-    this.startMethod = function(){
-        console.log('I am here, debug');
-    };
     //make sure app is valid
-    this.ensureAppValid = function(app){
-        if(app.isValid()){
-            this.emit('validated', app);
-        }else{
-            this.emit('invalid', app.validationmessage());
+    this.ensureAppValid = function(next) {
+        if (app.isValid()) {
+            next(null, true);
+        } else {
+            next(app.validationmessage(), null);
         }
     };
     //find the next mission
-    this.findNextMission = function(app){
-        app.mission = {
-            commander : null,
-            pilot : null,
-            NAVpilot :null,
-            passengers : []
+    this.findNextMission = function(next) {
+    var  mission = {
+            commander: null,
+            pilot: null,
+            NAVpilot: null,
+            passengers: []
         }
-        this.emit('mission-selected',app);
+        next( null, mission);
+        // this.emit('mission-selected', app);
     };
     //make sure sole selected is available
 
-    this.roleIsAvailable = function(app){
-        this.emit('role-available', app);
+    this.roleIsAvailable = function(next) {
+        //this.emit('role-available', app);
+        next( null, true);
     };
     //make sure height /weight/age is right for the role
-    this.ensureRoleCompatible =  function(app){
-        this.emit('role-compatible', app);
-    };
-    //accept app
-    this.acceptApplication = function(app){
-        callback(null,{
-            success : true,
-            message : 'Welcome to Mars program!'
-        });
+    this.ensureRoleCompatible = function(next) {
+        //this.emit('role-compatible', app);
+        next(null, true);
     };
 
-    //deny app
-    this.denyApplication = function(message){
-        callback(null, {
-            success: false,
-            message : message
-        })
-    };
 
     //process application
-    this.processApplication = function (app, next){
-        // process.stdout.print('processApplication');
-        callback = next;
-        this.emit('application-received',app);
-       
+    this.processApplication = function(next) {
+        async.series({
+            validApp: this.ensureAppValid,
+            nextMission: this.findNextMission,
+            roleAvailable: this.roleIsAvailable,
+            roleCompatible: this.ensureRoleCompatible
+            
+        }, function(err, results) {
+            if (err) {
+                next(null, {
+                    success: false,
+                    message: err
+                });
+            } else {
+                console.log('results : ->' , results);
+                next(null, {
+                    success: true,
+                    message: 'Welcome to Mars!'
+                });
+            }
+            // next(null, results);
+        });
+
     };
 
-//event path or event chain
-    this.on('application-received', this.ensureAppValid);
-    this.on('validated', this.findNextMission);
-    this.on('mission-selected', this.roleIsAvailable);
-    this.on('role-available', this.ensureRoleCompatible);
-    this.on('role-compatible', this.acceptApplication);
-    this.on('invalid', this.denyApplication);
 };
-
-
-util.inherits(ReviewProcess, EventEmitter);
-
 module.exports = ReviewProcess;
